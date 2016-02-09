@@ -10,12 +10,12 @@ TEST(DoubleLinkedList, push_front)
     // Arrange
     const auto list = std::unique_ptr<DoubleLinkedList<unsigned>>(new DoubleLinkedList<unsigned>);
     //append nodes to front of the list
-    for( int i = 1 ; i < 4 ; i++) {
+    for( auto i = 1 ; i < 4 ; i++) {
       list->push_front(i*1);
     }
 
-    std::vector<unsigned> contentFwd = list->get_nodes_forward();
-    std::vector<unsigned> contentRev = list->get_nodes_reverse();
+    const auto contentFwd = list->get_nodes_forward();
+    const auto  contentRev = list->get_nodes_reverse();
 
     // Assert
     EXPECT_THAT(contentFwd, ElementsAre(3, 2, 1));
@@ -27,12 +27,12 @@ TEST(DoubleLinkedList, push_back)
     // Arrange
     const auto list = std::unique_ptr<DoubleLinkedList<unsigned>>(new DoubleLinkedList<unsigned>);
     //append nodes to back of the list
-    for( int i = 1 ; i < 4 ; i++) {
+    for( auto i = 1 ; i < 4 ; i++) {
       list-> push_back(11 - (1 * i));
     }
 
-    std::vector<unsigned> contentFwd = list->get_nodes_forward();
-    std::vector<unsigned> contentRev = list->get_nodes_reverse();
+    const auto contentFwd = list->get_nodes_forward();
+    const auto contentRev = list->get_nodes_reverse();
 
     // Assert
     EXPECT_THAT(contentFwd, ElementsAre(10, 9, 8));

@@ -2,82 +2,76 @@
 #define DOUBLE_LINKED_LIST_H
 
 #include <vector>
-/*
-* A simple double linked list implementation taken from
-* http://www.cprogramming.com/snippets/source-code/double-linked-list-cplusplus
-*/
+#include <memory>
+#include <iostream>
+
 template<typename T>
-struct Node
-{
-  T value;
-  Node *N,*P;
-  Node(T y)
-  {
-      value = y;
-      N = P = 0;
-  }
+struct Node {
+    explicit Node(T val)
+            : value{val}
+    {}
+    ~Node() {
+        std::cout << "Node " << value << " destroyed\n";
+    }
+
+    Node(const Node&) = default;
+    Node(Node&&) = default;
+    Node& operator=(const Node&) = default;
+    Node& operator=(Node&&) = default;
+
+    T value;
+    std::shared_ptr<Node> next = nullptr;
+    std::weak_ptr<Node> previous; // using a shared_ptr would introduce circular dependencies
 };
 
 template<typename T>
-class DoubleLinkedList
-{
-  Node<T> *front;
-  Node<T> *back;
-  public:
-  DoubleLinkedList()
-  {  front = 0; back = 0; }
-  ~DoubleLinkedList(){ destroy_list();}
-  void push_front(T x);
-  void push_back(T x);
-  std::vector<T> get_nodes_forward();
-  std::vector<T> get_nodes_reverse();
-  void destroy_list();
+class DoubleLinkedList {
+public:
+    void push_front (T x);
+    void push_back (T x);
+    std::vector<T> get_nodes_forward() ;
+    std::vector<T> get_nodes_reverse ();
+private:
+    std::shared_ptr<Node<T>> front = nullptr;
+    std::shared_ptr<Node<T>> back = nullptr;
 };
 
 template<typename T>
 void DoubleLinkedList<T>::push_front(T x)
 {
-      Node<T> *n = new Node<T>(x);
-      if( front == 0)
-      {
-          front = n;
-          back = n;
-      }
-      else
-      {
-          front->P = n;
-          n->N = front;
-          front = n;
-      }
+    const auto n = std::make_shared<Node<T>>(x);
+    if( not front) {
+        front = n;
+        back = n;
+    } else {
+        front->previous = n;
+        n->next = front;
+        front = n;
+    }
 }
 
 template<typename T>
 void DoubleLinkedList<T>::push_back(T x)
 {
-      Node<T> *n = new Node<T>(x);
-      if( back == 0)
-      {
-          front = n;
-          back = n;
-      }
-      else
-      {
-          back->N = n;
-          n->P = back;
-          back = n;
-      }
-
+    const auto n = std::make_shared<Node<T>>(x);
+    if( not back) {
+        front = n;
+        back = n;
+    } else {
+        back->next = n;
+        n->previous = back;
+        back = n;
+    }
 }
 
 template<typename T>
 std::vector<T> DoubleLinkedList<T>::get_nodes_forward()
 {
-    Node<T> *temp = front;
+    auto temp = front;
     std::vector<T> out;
-    while(temp != 0)
-    {
-       out.push_back(temp->value);
-       temp = temp->N;
+    while(temp) {
+        out.push_back(temp->value);
+        temp = temp->next;
     }
     return out;
 }
@@ -85,28 +79,13 @@ std::vector<T> DoubleLinkedList<T>::get_nodes_forward()
 template<typename T>
 std::vector<T> DoubleLinkedList<T>::get_nodes_reverse()
 {
-    Node<T> *temp = back;
+    auto temp = back;
     std::vector<T> out;
-    while(temp != 0)
-    {
-       out.push_back(temp->value);
-       temp = temp->P;
+    while(temp) {
+        out.push_back(temp->value);
+        temp = temp->previous.lock();
     }
     return out;
-}
-
-template<typename T>
-void DoubleLinkedList<T>::destroy_list()
-{
-    Node<T> *temp = back;
-    while(temp != 0)
-    {
-        Node<T> *temp2 = temp;
-        temp = temp->P;
-        delete temp2;
-    }
-    front = 0;
-    back = 0;
 }
 
 #endif
