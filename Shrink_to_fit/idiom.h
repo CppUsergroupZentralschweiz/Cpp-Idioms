@@ -6,7 +6,7 @@
 template<class Container>
 void shrink_to_fit(Container& container)
 {
-  Container(container.begin(), container.end()).swap(container);
+  container.shrink_to_fit();
 }
 
 #endif
