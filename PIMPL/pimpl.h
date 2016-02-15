@@ -1,21 +1,22 @@
 #ifndef PIMPL_H
 #define PIMPL_H
 
-#include <string>
-#include <vector>
+#include <memory>
 
 class foo
 {
 public:
   foo();
   void print();
+  ~foo();
+  foo(const foo&);
+  foo& operator=(const foo&);
+  foo(foo&&);
+  foo& operator=(foo&&);
 
 private:
-    void initialize();
-    void print_member3();
-		std::string member1;
-    std::string member2;
-    std::vector<int> member3;
+    class impl;
+    std::unique_ptr<impl> pimpl;
 };
 
 #endif
